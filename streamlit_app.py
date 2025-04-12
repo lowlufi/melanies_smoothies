@@ -53,12 +53,11 @@ if ingredients_list:
     VALUES ('{ingredients_string.strip()}', '{name_on_order}')
     """
     
-    time_to_insert = st.button('Submit Order')
-    
-    if time_to_insert:
-        try:
-            session.sql(my_insert_stmt).collect()
-            st.success('Your Smoothie is ordered!', icon="✔")
-        except Exception as e:
-            st.error(f"Error submitting order: {str(e)}")
-            st.text(my_insert_stmt)  # Mostrar la consulta para depuración
+time_to_insert = st.button('Submit Order')
+if time_to_insert:
+    try:
+        session.sql(my_insert_stmt).collect()
+        st.success('Your Smoothie is ordered!', icon="✔")
+    except Exception as e:
+        st.error(f"Error submitting order: {str(e)}")
+        st.text(my_insert_stmt)  # Mostrar la consulta para depuración
