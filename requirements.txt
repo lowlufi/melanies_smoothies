@@ -1,3 +1,4 @@
 #reiquements.txt
 snowflake-snowpark-python
 streamlit
+request 
