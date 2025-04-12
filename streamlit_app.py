@@ -14,7 +14,7 @@ cnx = st.connection("snowflake")
 session = cnx.session()
 
 #Add the New SEARCH_ON Column to the Dataframe that feeds the Multiselect
-my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'),col('SEARCH_ON))
+my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'),col('search_on))
 st.dataframe(data=my_dataframe, use_container_width=True)
 st.stop()
 
