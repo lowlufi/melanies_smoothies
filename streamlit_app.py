@@ -30,24 +30,36 @@ except Exception as e:
 ingredients_list = st.multiselect(
     'Choose up to 5 ingredients:',
     my_dataframe,
-    max_selections=5
+    max_selections=6
 )
 
 if ingredients_list:
     ingredients_string = ''
     
     for fruit_chosen in ingredients_list:
-        ingredients_string += fruit_chosen + ''
-        search_on=pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
-        # st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
+        ingredients_string += fruit_chosen + ' '  # Espacio añadido aquí
         
-        st.subheader(fruit_chosen + ' Nutrition Information')
-        fruitvoice_response = requests.get("https://fruitvoice.com/api/fruit/" + search_on)
-        pd_df = st.dataframe(data=fruitvoice_response.json(), use_container_width=True)
-
+        try:
+            search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
+            st.subheader(f"{fruit_chosen} Nutrition Information")
+            smoothiefroot_response = requests.get(f"https://my.smoothiefroot.com/api/fruit/{search_on}")
+            sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True, 
+                               key=f"nutrition_{fruit_chosen}")  # Key única
+        except Exception as e:
+            st.warning(f"Couldn't get nutrition info for {fruit_chosen}: {str(e)}")
     
-    #st.write(ingredients_string)
+    # Definir my_insert_stmt ANTES de usarlo
+    my_insert_stmt = f"""
+    INSERT INTO smoothies.public.orders(ingredients, name_on_order)
+    VALUES ('{ingredients_string.strip()}', '{name_on_order}')
+    """
+    
     time_to_insert = st.button('Submit Order')
+    
     if time_to_insert:
-        session.sql(my_insert_stmt).collect()
-        st.success('Your Smoothie is ordered!', icon="✔")
+        try:
+            session.sql(my_insert_stmt).collect()
+            st.success('Your Smoothie is ordered!', icon="✔")
+        except Exception as e:
+            st.error(f"Error submitting order: {str(e)}")
+            st.text(my_insert_stmt)  # Mostrar la consulta para depuración
