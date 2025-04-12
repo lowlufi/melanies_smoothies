@@ -2,6 +2,7 @@
 import streamlit as st
 from snowflake.snowpark.functions import col
 import requests
+import pandas
 # Write directly to the app
 st.title(":cup_with_straw: Customize Your Batido!:cup_with_straw:")
 st.write(
@@ -14,8 +15,13 @@ cnx = st.connection("snowflake")
 session = cnx.session()
 
 #Add the New SEARCH_ON Column to the Dataframe that feeds the Multiselect
-my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'),col('search_on'))
-st.dataframe(data=my_dataframe, use_container_width=True)
+my_dataframe = session.table('smoothies.public.fruit_options').select(col('FRUIT_NAME'),col('search_on'))
+# st.dataframe(data=my_dataframe, use_container_width=True)
+# st.stop()
+
+# Convert the Snowpark Dataframe to a Pandas Dataframe so we can use the LOC function
+pd_df=my_dataframe.to_pandas()
+st.dataframe(pd_df)
 st.stop()
 
 ingredients_list = st.multiselect(
